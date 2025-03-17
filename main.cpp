@@ -4,8 +4,8 @@
 #include "Quaternion.hpp"
 int main() {
     Matrix matrix({{2, 2}, {1,3}});
-    ColVec colVec({1,2});
-    RowVec rowVec({1, 3});
+    ColVec<2> colVec(std::array<float, 2>{1, 3});
+    RowVec<2> rowVec({1, 3});
 
     RowVec<1> point({2});
 

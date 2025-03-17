@@ -24,11 +24,11 @@ extern "C" {
 
 #include "cstring"
 #include "iostream"
-
+#include "array"
 
 template<uint32_t ROWS, uint32_t COLS>
 class Matrix {
-
+public:
     consteval static bool is_point() { return (ROWS == 1 && COLS == 1); }
 
     consteval static bool is_row() { return (COLS != 1 && ROWS == 1); }
@@ -71,8 +71,15 @@ public:
         memcpy(this->data, arr, COLS * sizeof(float));
     }
 
+    Matrix(const std::array<float, COLS>& arr ) requires(is_row() || is_point()): Matrix<1, COLS>() {
+        memcpy(this->data, arr.data(), COLS * sizeof(float));
+    }
+
     Matrix(const float (&arr)[ROWS]) requires(is_col()): Matrix<ROWS, 1>() {
         memcpy(this->data, arr, ROWS * sizeof(float));
+    }
+    Matrix(const std::array<float, ROWS>& arr) requires(is_col()): Matrix<ROWS, 1>() {
+        memcpy(this->data, arr.data(), COLS * sizeof(float));
     }
 
     Matrix(const float (&arr)[ROWS][COLS])
