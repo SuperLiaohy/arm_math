@@ -56,6 +56,20 @@ build CMakeFiles/imu.dir/main.cpp.o: CXX_COMPILER__imu_unscanned_Debug /home/lia
   OBJECT_DIR = CMakeFiles/imu.dir
   OBJECT_FILE_DIR = CMakeFiles/imu.dir
 
+build CMakeFiles/imu.dir/Matrix/ColVec.cpp.o: CXX_COMPILER__imu_unscanned_Debug /home/liaohy/robomaster/imu/Matrix/ColVec.cpp || cmake_object_order_depends_target_imu
+  DEP_FILE = CMakeFiles/imu.dir/Matrix/ColVec.cpp.o.d
+  FLAGS = -g -std=gnu++2a -fdiagnostics-color=always
+  INCLUDES = -I/home/liaohy/robomaster/imu/Quaternion -I/home/liaohy/robomaster/imu/Matrix
+  OBJECT_DIR = CMakeFiles/imu.dir
+  OBJECT_FILE_DIR = CMakeFiles/imu.dir/Matrix
+
+build CMakeFiles/imu.dir/Matrix/RowVec.cpp.o: CXX_COMPILER__imu_unscanned_Debug /home/liaohy/robomaster/imu/Matrix/RowVec.cpp || cmake_object_order_depends_target_imu
+  DEP_FILE = CMakeFiles/imu.dir/Matrix/RowVec.cpp.o.d
+  FLAGS = -g -std=gnu++2a -fdiagnostics-color=always
+  INCLUDES = -I/home/liaohy/robomaster/imu/Quaternion -I/home/liaohy/robomaster/imu/Matrix
+  OBJECT_DIR = CMakeFiles/imu.dir
+  OBJECT_FILE_DIR = CMakeFiles/imu.dir/Matrix
+
 build CMakeFiles/imu.dir/Quaternion/Quaternion.cpp.o: CXX_COMPILER__imu_unscanned_Debug /home/liaohy/robomaster/imu/Quaternion/Quaternion.cpp || cmake_object_order_depends_target_imu
   DEP_FILE = CMakeFiles/imu.dir/Quaternion/Quaternion.cpp.o.d
   FLAGS = -g -std=gnu++2a -fdiagnostics-color=always
@@ -71,7 +85,7 @@ build CMakeFiles/imu.dir/Quaternion/Quaternion.cpp.o: CXX_COMPILER__imu_unscanne
 #############################################
 # Link the executable imu
 
-build imu: CXX_EXECUTABLE_LINKER__imu_Debug CMakeFiles/imu.dir/main.cpp.o CMakeFiles/imu.dir/Quaternion/Quaternion.cpp.o
+build imu: CXX_EXECUTABLE_LINKER__imu_Debug CMakeFiles/imu.dir/main.cpp.o CMakeFiles/imu.dir/Matrix/ColVec.cpp.o CMakeFiles/imu.dir/Matrix/RowVec.cpp.o CMakeFiles/imu.dir/Quaternion/Quaternion.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/imu.dir
   POST_BUILD = :

@@ -6,15 +6,18 @@
 #define QUATERNION_HPP
 
 #include "Matrix.hpp"
-
+#include "RowVec.hpp"
+#include "ColVec.hpp"
 class Quaternion {
+    template<uint32_t T>
+    using Vec = ColVec<T>;
 public:
     Quaternion(float w, float x, float y, float z) {
         this->w = w;
-        this->u = RowVec<3>({x, y, z});
+        this->u = Vec<3>({x, y, z});
     };
 
-    Quaternion(float w, const RowVec<3> &u) {
+    Quaternion(float w, const Vec<3> &u) {
         this->w = w;
         this->u = u;
     };
@@ -22,7 +25,7 @@ public:
 //    Quaternion(const Quaternion &q);
 
     Quaternion operator*(const Quaternion &q) {
-        return Quaternion(q.w * w - (q.u * u.transpose())(0, 0), q.w * u + w * q.u + (u ^ q.u));
+        return Quaternion(q.w * w - (q.u * u)(0, 0), q.w * u + w * q.u + (u ^ q.u));
     };
 
     friend std::ostream &operator<<(std::ostream &os, const Quaternion &mat) {
@@ -36,7 +39,7 @@ public:
 
 private:
     float w;
-    RowVec<3> u;
+    Vec<3> u;
 };
 
 

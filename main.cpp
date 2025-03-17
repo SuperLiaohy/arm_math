@@ -1,10 +1,14 @@
 #include <iostream>
 #include "Matrix.hpp"
+#include "ColVec.hpp"
 #include "Quaternion.hpp"
 int main() {
     Matrix matrix({{2, 2}, {1,3}});
     ColVec colVec({1,2});
     RowVec rowVec({1, 3});
+
+    RowVec<1> point({2});
+
     std::cout << "RowVec" << rowVec << std::endl;
     std::cout << "ColVec:" << colVec << std::endl;
     std::cout << "row * col" << colVec* rowVec<< std::endl;
@@ -13,6 +17,11 @@ int main() {
     std::cout << "inverse:" << matrix.inv() << std::endl;
     std::cout << "origin * inverse:" << matrix * matrix.inv() << std::endl;
     std::cout << "origin * Col" << matrix * colVec << std::endl;
+    std::cout << "row * origin" << rowVec * matrix << std::endl;
+    std::cout << "point * row" << point * rowVec << std::endl;
+
+    std::cout << "point * row" << point * point << std::endl;
+
     std::cout << "Hello, World!" << std::endl;
 
     auto q1 = (Quaternion(1, 2, 3, 4));

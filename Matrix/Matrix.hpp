@@ -28,6 +28,23 @@ extern "C" {
 
 template<uint32_t ROWS, uint32_t COLS>
 class Matrix {
+
+    constexpr bool is_point() {
+        return (ROWS == 1 && COLS == 1);
+    }
+
+    consteval bool is_row() {
+        return (COLS != 1 && ROWS == 1);
+    }
+    consteval bool is_col() {
+        return (COLS == 1 && ROWS != 1);
+    }
+
+
+    template<uint32_t R, uint32_t C>
+    friend
+    class Matrix;
+
 public:
     static Matrix zeros() {
         Matrix result;
@@ -37,6 +54,7 @@ public:
 
     static Matrix eyes() {
         Matrix result = zeros();
+
         for (int i = 0; i < ROWS; ++i) {
             for (int j = 0; j < COLS; ++j) {
                 if (i == j) {
@@ -50,6 +68,14 @@ public:
 public:
     Matrix() {
         arm_mat_init_f32(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
+    }
+
+    Matrix(const float (&arr)[COLS]) requires(ROWS == 1): Matrix<1, COLS>() {
+        memcpy(this->data, arr, COLS * sizeof(float));
+    }
+
+    Matrix(const float (&arr)[ROWS]) requires(ROWS != 1 && COLS == 1): Matrix<ROWS, 1>() {
+        memcpy(this->data, arr, ROWS * sizeof(float));
     }
 
     Matrix(const float (&arr)[ROWS][COLS])
@@ -111,10 +137,24 @@ public:
         return result;
     }
 
-    template<uint32_t row, uint32_t col>
-    Matrix<ROWS, col> operator*(const Matrix<row, col> &other) const requires(COLS == row) {
+    template<uint32_t col>
+    Matrix<ROWS, col> operator*(const Matrix<COLS, col> &other) const {
         Matrix<ROWS, col> result;
         arm_mat_mult_f32(&matrix, &other.matrix, &result.matrix);
+        return result;
+    }
+
+    Matrix<1, COLS> operator*(const Matrix<1, COLS> &other) const requires(ROWS == 1 && COLS != 1)  {
+        Matrix<ROWS, COLS> result;
+        Matrix<COLS, 1> tmp = other.transpose();
+        arm_mat_mult_f32(&matrix, &tmp.matrix, &result.matrix);
+        return result;
+    }
+
+    Matrix<ROWS, 1> operator*(const Matrix<ROWS, 1> &other) const requires(COLS == 1 && ROWS != 1)  {
+        Matrix<ROWS, COLS> result;
+        Matrix<1, ROWS> tmp = this->transpose();
+        arm_mat_mult_f32(&tmp.matrix, &other.matrix, &result.matrix);
         return result;
     }
 
@@ -152,11 +192,32 @@ public:
         return result;
     }
 
-    Matrix operator^(const Matrix &other) requires(ROWS == COLS) {
-        Matrix result;
-        arm_mat_inverse_f32(&matrix, &result.matrix);
-        return result;
-    }
+//    Matrix<1, COLS> operator^(const Matrix<1, COLS> &other) requires(ROWS == 1);
+
+    Matrix operator^(const Matrix &other) requires(ROWS == 1 || COLS == 1);
+
+//    Matrix<ROWS, 1> operator^(const Matrix<ROWS, 1> &other) requires(COLS == 1);
+
+    float &operator()(uint32_t num) requires(ROWS == 1) { return this->data[0][num - 1]; };
+
+    float operator()(uint32_t num) const requires(ROWS == 1) { return this->data[0][num - 1]; };
+
+    float &operator()(uint32_t num) requires(COLS == 1) { return this->data[num - 1][0]; };
+
+    float operator()(uint32_t num) const requires(COLS == 1) { return this->data[num - 1][0]; };
+
+    //    Matrix<1, COLS> operator^(const Matrix<COLS, 1> &other) requires(ROWS == 1) {
+    //        Matrix result;
+    //        arm_mat_trans_f32(&other, &result.matrix);
+    //        arm_mat_inverse_f32(&matrix, &result.matrix);
+    //        return result;
+    //    }
+
+    //    Matrix<ROWS, 1> operator^(const Matrix<ROWS, 1> &other) requires(COLS == 1) {
+    //        Matrix result;
+    //        arm_mat_inverse_f32(&matrix, &result.matrix);
+    //        return result;
+    //    }
 
     void operator+=(const Matrix &other) {
         arm_mat_add_f32(&matrix, &other.matrix, &matrix);
@@ -265,8 +326,3 @@ inline Matrix<ROWS, COLS> Matrix<ROWS, COLS>::inv() requires(ROWS == COLS) {
     arm_status ret = arm_mat_inverse_f32(&matrix_bak, &result.matrix);
     return ret == ARM_MATH_SUCCESS ? result : zeros();
 }
-
-
-
-
-

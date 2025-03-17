@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB_RECURSE
         SRC_FILES
-        Quaternion/*.cpp)
+        Quaternion/*.cpp
+        Matrix/*.cpp
+)
 
 add_executable(imu main.cpp
         ${SRC_FILES})
