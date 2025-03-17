@@ -42,11 +42,10 @@ concept PlatFormConcept = requires(T t) {
                     std::declval<typename T::MatrixInstance *>())
     } -> std::same_as<void>;
 
-
     {
     T::matrix_inverse(std::declval<typename T::MatrixInstance *>(),
                     std::declval<typename T::MatrixInstance *>())
-    } -> std::same_as<void>;
+    } -> std::same_as<typename T::status>;
 };
 
 
