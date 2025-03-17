@@ -25,7 +25,7 @@ public:
 //    Quaternion(const Quaternion &q);
 
     Quaternion operator*(const Quaternion &q) {
-        return Quaternion(q.w * w - (q.u * u)(0, 0), q.w * u + w * q.u + (u ^ q.u));
+        return Quaternion(q.w * w - (q.u * u)(1, 1), q.w * u + w * q.u + (u ^ q.u));
     };
 
     friend std::ostream &operator<<(std::ostream &os, const Quaternion &mat) {
