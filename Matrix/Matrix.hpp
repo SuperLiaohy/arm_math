@@ -57,23 +57,23 @@ public:
         pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
     }
 
-    constexpr Matrix(const float (&arr)[COLS]) requires(is_row() || is_point()): Matrix<1, COLS>() {
+    constexpr explicit Matrix(const float (&arr)[COLS]) requires(is_row() || is_point()): Matrix<1, COLS>() {
         memcpy(this->data, arr, COLS * sizeof(float));
     }
 
-    constexpr Matrix(const std::array<float, COLS>& arr ) requires(is_row() || is_point()): Matrix<1, COLS>() {
+    constexpr explicit Matrix(const std::array<float, COLS>& arr ) requires(is_row() || is_point()): Matrix<1, COLS>() {
         memcpy(this->data, arr.data(), COLS * sizeof(float));
     }
 
-    constexpr Matrix(const float (&arr)[ROWS]) requires(is_col()): Matrix<ROWS, 1>() {
+    constexpr explicit Matrix(const float (&arr)[ROWS]) requires(is_col()): Matrix<ROWS, 1>() {
         memcpy(this->data, arr, ROWS * sizeof(float));
     }
 
-    constexpr Matrix(const std::array<float, ROWS>& arr) requires(is_col()): Matrix<ROWS, 1>() {
+    constexpr explicit Matrix(const std::array<float, ROWS>& arr) requires(is_col()): Matrix<ROWS, 1>() {
         memcpy(this->data, arr.data(), COLS * sizeof(float));
     }
 
-    constexpr Matrix(const float (&arr)[ROWS][COLS])
+    constexpr explicit Matrix(const float (&arr)[ROWS][COLS])
             : Matrix() {
         memcpy(this->data, arr, ROWS * COLS * sizeof(float));
     }
