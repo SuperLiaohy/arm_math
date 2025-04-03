@@ -37,18 +37,17 @@ public:
     static consteval Quaternion init() { return Quaternion{1, 0, 0, 0}; }
 
 public:
-    constexpr Quaternion(float w, float x, float y, float z) requires(static_cast<bool>(!Unit)): w(w), u(Vec<3>(
+    constexpr Quaternion(float w, float x, float y, float z) requires((!Unit)): w(w), u(Vec<3>(
             {x, y, z})) {};
 
-    constexpr Quaternion(float w, float x, float y, float z) requires(static_cast<bool>(Unit))
+    constexpr Quaternion(float w, float x, float y, float z) requires((Unit))
             : quaternion_dep::UnitQ<Unit>(Vec<3>({x, y, z})), w(w), u(Vec<3>({x, y, z})) {};
 
-    constexpr Quaternion(float w, const Vec<3> &u) requires(static_cast<bool>(Unit)): quaternion_dep::UnitQ<Unit>(u),
-                                                                                      w(w), u(u) {};
+    constexpr Quaternion(float w, const Vec<3> &u) requires((Unit)): quaternion_dep::UnitQ<Unit>(u), w(w), u(u) {};
 
-    constexpr Quaternion(float w, const Vec<3> &u) requires(static_cast<bool>(!Unit)): w(w), u(u) {};
+    constexpr Quaternion(float w, const Vec<3> &u) requires((!Unit)): w(w), u(u) {};
 
-    constexpr Quaternion(float theta, const Vec<3> &vec, bool) requires(static_cast<bool>(Unit))
+    constexpr Quaternion(float theta, const Vec<3> &vec, bool) requires((Unit))
             : quaternion_dep::UnitQ<Unit>(vec), w(Vec<3>::cos(theta / 2)), u(Vec<3>::sin(theta / 2) * vec) {};
 
 
@@ -57,7 +56,7 @@ public:
     };
 
     constexpr Quaternion operator*(const Quaternion &other) const {
-        return Quaternion{other.w * w - (other.u * u)(1, 1), other.w * u + w * other.u + (u ^ other.u)};
+        return Quaternion{other.w * w - (other.u * u), other.w * u + w * other.u + (u ^ other.u)};
     };
 
     constexpr Quaternion operator*(float scale) const {
@@ -88,17 +87,17 @@ public:
         return Quaternion{w, -u(1), -u(2), -u(3)};
     }
 
-    constexpr Quaternion inv() const requires(static_cast<bool>(!Unit)) {
-        auto size = w * w + (u * u)[0];
+    constexpr Quaternion inv() const requires((!Unit)) {
+        auto size = w * w + (u * u);
         if (size < 1e-7) { return zero(); }
         return Quaternion{w / size, -u(1) / size, -u(2) / size, -u(3) / size};
     }
 
-    constexpr Quaternion inv() const requires(static_cast<bool>(Unit)) {
+    constexpr Quaternion inv() const requires((Unit)) {
         return Quaternion{w, -u(1), -u(2), -u(3)};
     }
 
-    void update(float theta) requires(static_cast<bool>(Unit)) {
+    void update(float theta) requires((Unit)) {
         w = Vec<3>::cos(theta / 2);
         u = Vec<3>::sin(theta / 2) * this->Spin;
     };

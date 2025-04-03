@@ -7,7 +7,7 @@ int main() {
     ColVec<2> colVec(std::array<float, 2>{1, 3});
     RowVec<2> rowVec({1, 3});
 
-    RowVec<1> point({2});
+    RowVec<1> point(2);
 
     std::cout << "RowVec" << rowVec << std::endl;
     std::cout << "ColVec:" << colVec << std::endl;
@@ -27,7 +27,7 @@ int main() {
     auto q1 = (Quaternion<true>(1, 2, 3, 4));
     auto q2 = (Quaternion<true>(2, 4, 3, 4));
     auto q3 = q1 * q2;
-    std::cout << "q1 * q2" << q2.Spin<< std::endl;
+    std::cout << "q1 * q2" << static_cast<Matrix<1,1>>((q2.Spin * q1.Spin)) << std::endl;
 
     return 0;
 }

@@ -129,20 +129,6 @@ public:
         return result;
     }
 
-    constexpr Matrix<1, COLS> operator*(const Matrix<1, COLS> &other) const requires(is_row()) {
-        Matrix<ROWS, COLS> result;
-        Matrix<COLS, 1> tmp = other.transpose();
-        pl::matrix_mul(&matrix, &tmp.matrix, &result.matrix);
-        return result;
-    }
-
-    constexpr Matrix<ROWS, 1> operator*(const Matrix<ROWS, 1> &other) const requires(is_col()) {
-        Matrix<ROWS, COLS> result;
-        Matrix<1, ROWS> tmp = this->transpose();
-        pl::matrix_mul(&tmp.matrix, &other.matrix, &result.matrix);
-        return result;
-    }
-
     constexpr Matrix operator*(float scale) const {
         Matrix result;
         pl::matrix_scale(&matrix, scale, &result.matrix);
@@ -222,6 +208,8 @@ public:
      */
     Matrix operator^(const Matrix &other) const requires(is_vec() || is_point()) ;
 
+    explicit Matrix(float other) requires(is_point()) : Matrix() {data[0][0] = other;};
+
 // 列向量
 public:
 
@@ -231,6 +219,13 @@ public:
 
     constexpr explicit Matrix(const std::array<float, ROWS> &arr) requires(is_col()): Matrix<ROWS, 1>() {
         memcpy(this->data, arr.data(), COLS * sizeof(float));
+    }
+
+    constexpr float operator*(const Matrix<ROWS, 1> &other) const requires(is_col()) {
+        Matrix<1, 1> result;
+        Matrix<1, ROWS> tmp = this->transpose();
+        pl::matrix_mul(&tmp.matrix, &other.matrix, &result.matrix);
+        return result(1, 1);
     }
 
     float &operator[](uint32_t num) requires(is_col()) { return this->data[num][0]; };
@@ -243,12 +238,19 @@ public:
 
 // 行向量
 public:
-    constexpr explicit Matrix(const float (&arr)[COLS]) requires(is_row() || is_point()): Matrix<1, COLS>() {
+    constexpr explicit Matrix(const float (&arr)[COLS]) requires(is_row()): Matrix<1, COLS>() {
         memcpy(this->data, arr, COLS * sizeof(float));
     }
 
-    constexpr explicit Matrix(const std::array<float, COLS> &arr) requires(is_row() || is_point()): Matrix<1, COLS>() {
+    constexpr explicit Matrix(const std::array<float, COLS> &arr) requires(is_row()): Matrix<1, COLS>() {
         memcpy(this->data, arr.data(), COLS * sizeof(float));
+    }
+
+    constexpr float operator*(const Matrix<1, COLS> &other) const requires(is_row()) {
+        Matrix<1, 1> result;
+        Matrix<COLS, 1> tmp = other.transpose();
+        pl::matrix_mul(&matrix, &tmp.matrix, &result.matrix);
+        return result(1, 1);
     }
 
     float &operator[](uint32_t num) requires(is_row() || is_point()) { return this->data[0][num]; };
