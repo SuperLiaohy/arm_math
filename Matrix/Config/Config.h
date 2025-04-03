@@ -53,4 +53,14 @@ public:
     matrix_inverse(MatrixInstance *self,MatrixInstance *result) {
         return arm_mat_inverse_f32(self, result);
     }
+
+    [[gnu::always_inline]] inline static float
+    sin(float input) {
+        return arm_cos_f32(input);
+    }
+
+    [[gnu::always_inline]] inline static float
+    cos(float input) {
+        return arm_cos_f32(input);
+    }
 };

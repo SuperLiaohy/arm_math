@@ -24,10 +24,10 @@ int main() {
 
     std::cout << "Hello, World!" << std::endl;
 
-    auto q1 = (Quaternion(1, 2, 3, 4));
-    auto q2 = (Quaternion(2, 4, 3, 4));
+    auto q1 = (Quaternion<true>(1, 2, 3, 4));
+    auto q2 = (Quaternion<true>(2, 4, 3, 4));
     auto q3 = q1 * q2;
-    std::cout << "q1 * q2" << q3 << std::endl;
+    std::cout << "q1 * q2" << q2.Spin<< std::endl;
 
     return 0;
 }

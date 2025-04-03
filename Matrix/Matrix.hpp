@@ -110,7 +110,7 @@ public:
 
     constexpr float operator()(uint32_t row, uint32_t col) const { return data[row - 1][col - 1]; }
 
-    constexpr Matrix operator+(const Matrix &other) {
+    constexpr Matrix operator+(const Matrix &other) const {
         Matrix result;
         pl::matrix_add(&matrix, &other.matrix, &result.matrix);
         return result;
@@ -220,7 +220,7 @@ public:
      * @param other 另外一个向量 the other vector
      * @return Matrix 相同维度的向量 vector of the same dimension
      */
-    Matrix operator^(const Matrix &other) requires(is_vec() || is_point());
+    Matrix operator^(const Matrix &other) const requires(is_vec() || is_point()) ;
 
 // 列向量
 public:

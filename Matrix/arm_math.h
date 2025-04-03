@@ -4,7 +4,7 @@
 #pragma once
 
 #include "stdint.h"
-
+#include "math.h"
 using float32_t = float;
 using float64_t = double;
 
@@ -24,6 +24,14 @@ typedef struct {
     uint16_t numCols;     /**< number of columns of the matrix.  */
     float32_t *pData;     /**< points to the data of the matrix. */
 } arm_matrix_instance_f32;
+
+inline float arm_cos_f32(float input) {
+    return cosf(input);
+}
+inline float arm_sin_f32(float input) {
+    return sinf(input);
+}
+
 
 inline void arm_mat_init_f32(arm_matrix_instance_f32 *self, uint16_t rows, uint16_t cols, float32_t *data) {
     self->numRows = rows;
