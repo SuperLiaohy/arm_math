@@ -13,7 +13,6 @@
 #include <concepts>
 #include "Config/Config.h"
 #include "cstring"
-#include "iostream"
 #include "array"
 
 template<uint32_t ROWS, uint32_t COLS, PlatFormConcept pl = Windows>
@@ -107,8 +106,7 @@ public:
 
     constexpr uint32_t get_col() { return COLS; }
 
-    constexpr float &operator()(uint32_t row, uint32_t col) { return data[row - 1][col - 1]; }
-
+    float &operator()(uint32_t row, uint32_t col) { return data[row - 1][col - 1]; }
     constexpr float operator()(uint32_t row, uint32_t col) const { return data[row - 1][col - 1]; }
 
     constexpr Matrix operator+(const Matrix &other) {
@@ -234,8 +232,10 @@ public:
         memcpy(this->data, arr.data(), COLS * sizeof(float));
     }
 
-    constexpr float &operator()(uint32_t num) requires(is_col()) { return this->data[num - 1][0]; };
+    float &operator[](uint32_t num) requires(is_col()) { return this->data[num][0]; };
+    constexpr float operator[](uint32_t num) const requires(is_col()) { return this->data[num][0]; };
 
+    float &operator()(uint32_t num) requires(is_col()) { return this->data[num - 1][0]; };
     constexpr float operator()(uint32_t num) const requires(is_col()) { return this->data[num - 1][0]; };
 
 // 行向量
@@ -248,12 +248,15 @@ public:
         memcpy(this->data, arr.data(), COLS * sizeof(float));
     }
 
-    constexpr float &operator()(uint32_t num) requires(is_row() || is_point()) { return this->data[0][num - 1]; };
+    float &operator[](uint32_t num) requires(is_row() || is_point()) { return this->data[0][num]; };
+    constexpr float operator[](uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num]; };
 
+    float &operator()(uint32_t num) requires(is_row() || is_point()) { return this->data[0][num - 1]; };
     constexpr float operator()(uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num - 1]; };
 
 
-    friend std::ostream &operator<<(std::ostream &os, const Matrix &mat) {
+    template<typename OStream>
+    friend OStream &operator<<(OStream &os, const Matrix &mat) {
         os << "\n[";
         for (uint32_t i = 0; i < ROWS; ++i) {
             if (i > 0) os << "\n ";

@@ -8,31 +8,58 @@
 #include "Matrix.hpp"
 #include "RowVec.hpp"
 #include "ColVec.hpp"
+
 class Quaternion {
     template<uint32_t T>
     using Vec = RowVec<T>;
 public:
-    Quaternion(float w, float x, float y, float z) : w(w), u(Vec<3>({x, y, z})) {};
+    constexpr Quaternion(float w, float x, float y, float z) : w(w), u(Vec<3>({x, y, z})) {};
 
-    Quaternion(float w, const Vec<3> &u) : w(w), u(u) {};
+    constexpr Quaternion(float w, const Vec<3> &u) : w(w), u(u) {};
 
-    Quaternion derivative(float wx, float wy, float wz) {
-        return 0.5 * Quaternion(0, wx, wy, wz) * (*this);
+    [[nodiscard]] constexpr Quaternion derivative(float wx, float wy, float wz) const {
+        return Quaternion(0, wx * 0.5f, wy * 0.5f, wz * 0.5f) * (*this);
     };
 
-    Quaternion operator*(const Quaternion &q) {
-        return Quaternion(q.w * w - (q.u * u)(1, 1), q.w * u + w * q.u + (u ^ q.u));
+    constexpr Quaternion operator*(const Quaternion &other) {
+        return Quaternion{other.w * w - (other.u * u)(1, 1), other.w * u + w * other.u + (u ^ other.u)};
     };
 
-    Quaternion operator*(float scale) {
-        return Quaternion(scale * w, u * scale);
+    constexpr Quaternion operator*(float scale) {
+        return Quaternion{scale * w, u * scale};
     };
 
-    friend Quaternion operator*(float scale, const Quaternion &q) {
-        return Quaternion(scale * q.w, q.u * scale);
+    friend constexpr Quaternion operator*(float scale, const Quaternion &other) {
+        return Quaternion{scale * other.w, other.u * scale};
     };
 
-    friend std::ostream &operator<<(std::ostream &os, const Quaternion &mat) {
+    constexpr Quaternion operator+(const Quaternion &other) {
+        return Quaternion{w + other.w, u + other.u};
+    }
+
+    constexpr Quaternion operator-(const Quaternion &other) {
+        return Quaternion{w - other.w, u - other.u};
+    }
+
+    constexpr Quaternion operator-() {
+        return Quaternion{-w, -u(1), -u(2), -u(3)};
+    }
+
+    constexpr Quaternion conj() {
+        return Quaternion{w, -u(1), -u(2), -u(3)};
+    }
+
+    constexpr Quaternion operator~() {
+        return Quaternion{w, -u(1), -u(2), -u(3)};
+    }
+
+    consteval Quaternion inv() {
+        auto size = w * w + (u * u)[0];
+        return Quaternion{w / size, -u(1) / size, -u(2) / size, -u(3) / size};
+    }
+
+    template<typename OStream>
+    friend OStream &operator<<(OStream &os, const Quaternion &mat) {
         os << "\n[";
         os << " " << mat.w << ",";
         os << " " << mat.u;
