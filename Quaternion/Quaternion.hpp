@@ -10,8 +10,12 @@
 #include "ColVec.hpp"
 
 class Quaternion {
+public:
     template<uint32_t T>
     using Vec = RowVec<T>;
+
+    static consteval Quaternion zero() { return Quaternion{0, 0, 0, 0};}
+    static consteval Quaternion init() { return Quaternion{1, 0, 0, 0};}
 public:
     constexpr Quaternion(float w, float x, float y, float z) : w(w), u(Vec<3>({x, y, z})) {};
 

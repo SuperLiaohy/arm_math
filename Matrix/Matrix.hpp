@@ -107,6 +107,7 @@ public:
     constexpr uint32_t get_col() { return COLS; }
 
     float &operator()(uint32_t row, uint32_t col) { return data[row - 1][col - 1]; }
+
     constexpr float operator()(uint32_t row, uint32_t col) const { return data[row - 1][col - 1]; }
 
     constexpr Matrix operator+(const Matrix &other) {
@@ -233,9 +234,11 @@ public:
     }
 
     float &operator[](uint32_t num) requires(is_col()) { return this->data[num][0]; };
+
     constexpr float operator[](uint32_t num) const requires(is_col()) { return this->data[num][0]; };
 
     float &operator()(uint32_t num) requires(is_col()) { return this->data[num - 1][0]; };
+
     constexpr float operator()(uint32_t num) const requires(is_col()) { return this->data[num - 1][0]; };
 
 // 行向量
@@ -249,9 +252,11 @@ public:
     }
 
     float &operator[](uint32_t num) requires(is_row() || is_point()) { return this->data[0][num]; };
+
     constexpr float operator[](uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num]; };
 
     float &operator()(uint32_t num) requires(is_row() || is_point()) { return this->data[0][num - 1]; };
+
     constexpr float operator()(uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num - 1]; };
 
 
