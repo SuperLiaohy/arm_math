@@ -11,7 +11,7 @@ int main() {
 
     std::cout << "RowVec" << rowVec << std::endl;
     std::cout << "ColVec:" << colVec << std::endl;
-    std::cout << "row * col" << colVec* rowVec<< std::endl;
+    std::cout << "row * col" << colVec * rowVec<< std::endl;
     std::cout << "origin:" << matrix << std::endl;
     std::cout << "tran:" << matrix.transpose() << std::endl;
     std::cout << "inverse:" << matrix.inv() << std::endl;

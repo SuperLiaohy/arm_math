@@ -12,15 +12,9 @@ class Quaternion {
     template<uint32_t T>
     using Vec = RowVec<T>;
 public:
-    Quaternion(float w, float x, float y, float z) {
-        this->w = w;
-        this->u = Vec<3>({x, y, z});
-    };
+    Quaternion(float w, float x, float y, float z) : w(w), u(Vec<3>({x, y, z})) {};
 
-    Quaternion(float w, const Vec<3> &u) {
-        this->w = w;
-        this->u = u;
-    };
+    Quaternion(float w, const Vec<3> &u) : w(w), u(u) {};
 
     Quaternion derivative(float wx, float wy, float wz) {
         return 0.5 * Quaternion(0, wx, wy, wz) * (*this);

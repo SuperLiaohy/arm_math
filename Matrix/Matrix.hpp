@@ -27,6 +27,7 @@ public:
 
     consteval static bool is_vec() { return ((COLS == 1 && ROWS != 1) || (COLS != 1 && ROWS == 1)); }
 
+    consteval static bool is_square() { return COLS == ROWS; }
 
     template<uint32_t R, uint32_t C, PlatFormConcept P>
     friend
@@ -51,51 +52,45 @@ public:
         }
         return result;
     }
-
+// 常规矩阵
 public:
     constexpr Matrix() {
         pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
     }
 
-    constexpr explicit Matrix(const float (&arr)[COLS]) requires(is_row() || is_point()): Matrix<1, COLS>() {
-        memcpy(this->data, arr, COLS * sizeof(float));
-    }
-
-    constexpr explicit Matrix(const std::array<float, COLS>& arr ) requires(is_row() || is_point()): Matrix<1, COLS>() {
-        memcpy(this->data, arr.data(), COLS * sizeof(float));
-    }
-
-    constexpr explicit Matrix(const float (&arr)[ROWS]) requires(is_col()): Matrix<ROWS, 1>() {
-        memcpy(this->data, arr, ROWS * sizeof(float));
-    }
-
-    constexpr explicit Matrix(const std::array<float, ROWS>& arr) requires(is_col()): Matrix<ROWS, 1>() {
-        memcpy(this->data, arr.data(), COLS * sizeof(float));
-    }
-
-    constexpr explicit Matrix(const float (&arr)[ROWS][COLS])
-            : Matrix() {
-        memcpy(this->data, arr, ROWS * COLS * sizeof(float));
-    }
-
     constexpr Matrix(const Matrix &other) {
-        this->matrix.numRows = ROWS;
-        this->matrix.numCols = COLS;
-        this->matrix.pData = reinterpret_cast<float *>(data);
+        pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
         memcpy(data, other.data, ROWS * COLS * sizeof(float));
+    }
+
+    constexpr Matrix &operator=(const Matrix &other) {
+        if (&other == this) { return *this; }
+        pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
+        memcpy(data, other.data, ROWS * COLS * sizeof(float));
+        return *this;
+    }
+
+    constexpr Matrix(Matrix &&other) noexcept {
+        pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
+        memcpy(data, other.data, ROWS * COLS * sizeof(float));
+    }
+
+    constexpr Matrix &operator=(Matrix &&other) noexcept {
+        if (&other == this) { return *this; }
+        pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
+        memcpy(data, other.data, ROWS * COLS * sizeof(float));
+        return *this;
+    }
+
+    ~Matrix() = default;
+
+    constexpr explicit Matrix(const float (&arr)[ROWS][COLS]) : Matrix() {
+        memcpy(this->data, arr, ROWS * COLS * sizeof(float));
     }
 
     constexpr Matrix &operator=(const float (&arr)[ROWS][COLS]) {
         pl::matrix_init(&matrix, ROWS, COLS, reinterpret_cast<float32_t *>(data));
         memcpy(data, arr, ROWS * COLS * sizeof(float));
-        return *this;
-    }
-
-    constexpr Matrix &operator=(const Matrix &other) {
-        this->matrix.numRows = ROWS;
-        this->matrix.numCols = COLS;
-        this->matrix.pData = reinterpret_cast<float *>(data);
-        memcpy(data, other.data, ROWS * COLS * sizeof(float));
         return *this;
     }
 
@@ -116,14 +111,6 @@ public:
 
     constexpr float operator()(uint32_t row, uint32_t col) const { return data[row - 1][col - 1]; }
 
-    constexpr float &operator()(uint32_t num) requires(is_row() || is_point()) { return this->data[0][num - 1]; };
-
-    constexpr float operator()(uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num - 1]; };
-
-    constexpr float &operator()(uint32_t num) requires(is_col()) { return this->data[num - 1][0]; };
-
-    constexpr float operator()(uint32_t num) const requires(is_col()) { return this->data[num - 1][0]; };
-
     constexpr Matrix operator+(const Matrix &other) {
         Matrix result;
         pl::matrix_add(&matrix, &other.matrix, &result.matrix);
@@ -143,14 +130,14 @@ public:
         return result;
     }
 
-    constexpr Matrix<1, COLS> operator*(const Matrix<1, COLS> &other) const requires(ROWS == 1 && COLS != 1) {
+    constexpr Matrix<1, COLS> operator*(const Matrix<1, COLS> &other) const requires(is_row()) {
         Matrix<ROWS, COLS> result;
         Matrix<COLS, 1> tmp = other.transpose();
         pl::matrix_mul(&matrix, &tmp.matrix, &result.matrix);
         return result;
     }
 
-    constexpr Matrix<ROWS, 1> operator*(const Matrix<ROWS, 1> &other) const requires(COLS == 1 && ROWS != 1) {
+    constexpr Matrix<ROWS, 1> operator*(const Matrix<ROWS, 1> &other) const requires(is_col()) {
         Matrix<ROWS, COLS> result;
         Matrix<1, ROWS> tmp = this->transpose();
         pl::matrix_mul(&tmp.matrix, &other.matrix, &result.matrix);
@@ -181,7 +168,7 @@ public:
         return result;
     }
 
-    constexpr void transpose(Matrix &mat) const {
+    constexpr void transpose(Matrix &mat) const requires(is_square()) {
         pl::matrix_trans(&matrix, &mat.matrix);
     }
 
@@ -191,9 +178,6 @@ public:
         return result;
     }
 
-
-    Matrix operator^(const Matrix &other) requires(is_vec() || is_point());
-
     void operator+=(const Matrix &other) {
         pl::matrix_add(&matrix, &other.matrix, &matrix);
     }
@@ -202,7 +186,7 @@ public:
         pl::matrix_sub(&matrix, &other.matrix, &matrix);
     }
 
-    void operator*=(const Matrix &other) requires(ROWS == COLS) {
+    void operator*=(const Matrix<COLS, COLS> &other) {
         pl::matrix_mul(&matrix, &other.matrix, &matrix);
     }
 
@@ -214,9 +198,9 @@ public:
         pl::matrix_scale(&matrix, 1.0f / scale, &matrix);
     }
 
-    inline pl::status inv(Matrix &result) requires(ROWS == COLS);
+    inline pl::status inv(Matrix &result) requires(is_square());
 
-    inline Matrix inv() requires(ROWS == COLS);
+    inline Matrix inv() requires(is_square());
 
     template<uint32_t row, uint32_t clo>
     inline void
@@ -228,7 +212,46 @@ public:
 
     inline void assign_scale(float scale);
 
-    inline pl::status assign_inv(Matrix &scr_matrix) requires(ROWS == COLS);
+    inline pl::status assign_inv(Matrix &scr_matrix) requires(is_square());
+
+// 向量
+public:
+    /**
+     * @brief 向量差乘 vector cross
+     * @param other 另外一个向量 the other vector
+     * @return Matrix 相同维度的向量 vector of the same dimension
+     */
+    Matrix operator^(const Matrix &other) requires(is_vec() || is_point());
+
+// 列向量
+public:
+
+    constexpr explicit Matrix(const float (&arr)[ROWS]) requires(is_col()): Matrix<ROWS, 1>() {
+        memcpy(this->data, arr, ROWS * sizeof(float));
+    }
+
+    constexpr explicit Matrix(const std::array<float, ROWS> &arr) requires(is_col()): Matrix<ROWS, 1>() {
+        memcpy(this->data, arr.data(), COLS * sizeof(float));
+    }
+
+    constexpr float &operator()(uint32_t num) requires(is_col()) { return this->data[num - 1][0]; };
+
+    constexpr float operator()(uint32_t num) const requires(is_col()) { return this->data[num - 1][0]; };
+
+// 行向量
+public:
+    constexpr explicit Matrix(const float (&arr)[COLS]) requires(is_row() || is_point()): Matrix<1, COLS>() {
+        memcpy(this->data, arr, COLS * sizeof(float));
+    }
+
+    constexpr explicit Matrix(const std::array<float, COLS> &arr) requires(is_row() || is_point()): Matrix<1, COLS>() {
+        memcpy(this->data, arr.data(), COLS * sizeof(float));
+    }
+
+    constexpr float &operator()(uint32_t num) requires(is_row() || is_point()) { return this->data[0][num - 1]; };
+
+    constexpr float operator()(uint32_t num) const requires(is_row() || is_point()) { return this->data[0][num - 1]; };
+
 
     friend std::ostream &operator<<(std::ostream &os, const Matrix &mat) {
         os << "\n[";
@@ -250,7 +273,7 @@ private:
 };
 
 template<uint32_t ROWS, uint32_t COLS, PlatFormConcept pl>
-pl::status Matrix<ROWS, COLS, pl>::assign_inv(Matrix &scr_matrix) requires(ROWS == COLS) {
+pl::status Matrix<ROWS, COLS, pl>::assign_inv(Matrix &scr_matrix) requires(is_square()) {
     typename pl::status ret = pl::matrix_inverse(&scr_matrix.matrix, &matrix);
     return ret;
 }
@@ -273,12 +296,12 @@ void Matrix<ROWS, COLS, pl>::assign_add(const Matrix &first_matrix, const Matrix
 template<uint32_t ROWS, uint32_t COLS, PlatFormConcept pl>
 template<uint32_t row, uint32_t clo>
 void Matrix<ROWS, COLS, pl>::assign_multiply(const Matrix<ROWS, clo> &first_matrix,
-                                         const Matrix<row, COLS> &second_matrix) requires(row == clo) {
+                                             const Matrix<row, COLS> &second_matrix) requires(row == clo) {
     pl::matrxi_mul(&first_matrix.matrix, &second_matrix.matrix, &matrix);
 }
 
 template<uint32_t ROWS, uint32_t COLS, PlatFormConcept pl>
-inline pl::status Matrix<ROWS, COLS, pl>::inv(Matrix &result) requires(ROWS == COLS) {
+inline pl::status Matrix<ROWS, COLS, pl>::inv(Matrix &result) requires(is_square()) {
     arm_matrix_instance_f32 matrix_bak;
     matrix_bak.numRows = ROWS;
     matrix_bak.numCols = COLS;
@@ -290,7 +313,7 @@ inline pl::status Matrix<ROWS, COLS, pl>::inv(Matrix &result) requires(ROWS == C
 }
 
 template<uint32_t ROWS, uint32_t COLS, PlatFormConcept pl>
-inline Matrix<ROWS, COLS, pl> Matrix<ROWS, COLS, pl>::inv() requires(ROWS == COLS) {
+inline Matrix<ROWS, COLS, pl> Matrix<ROWS, COLS, pl>::inv() requires(is_square()) {
     Matrix result;
     arm_matrix_instance_f32 matrix_bak;
     matrix_bak.numRows = ROWS;
